@@ -66,11 +66,11 @@ const HomeScreen = ({ navigation: { navigate } }) => {
     })
 
     let useData = sanitizedData.slice(1)
-    console.log(`useData: ${useData}`)
+    // console.log(`useData: ${useData}`)
     // console.log(typeof useData)
 
     var searchStr = useData.join(" ").trim()
-    console.log(`searchStr: ${searchStr}`)
+    // console.log(`searchStr: ${searchStr}`)
 
     // setText(responseData.text.replace([">", "<", "?", "&"], " "))
 
@@ -80,32 +80,31 @@ const HomeScreen = ({ navigation: { navigate } }) => {
     Linking.openURL(searchUrl)
   }
 
-  const specifyText = (searchStr) => {
-    searchStr = searchStr.replace(
-      [
-        ">",
-        "<",
-        "?",
-        "&",
-        "lived",
-        "and",
-        "the",
-        "council",
-        "died",
-        "here",
-        "greater",
-        "london",
-        "-",
-        "in",
-        "house",
-        "english",
-        "heritage",
-        "near",
-        "this",
-      ],
-      ""
-    )
-    return searchStr
+  // var find = [
+  //   ">",
+  //   "<",
+  //   "?",
+  //   "&",
+  //   "lived",
+  //   "and",
+  //   "the",
+  //   "council",
+  //   "died",
+  //   "here",
+  //   "greater",
+  //   "london",
+  //   "-",
+  //   "in",
+  //   "house",
+  //   "english",
+  //   "heritage",
+  //   "near",
+  //   "this",
+  // ]
+
+  const specifyText = (string) => {
+    console.log(string)
+    return string
   }
   //no camera permissions
   if (hasCameraPermission === undefined) {
