@@ -32,10 +32,13 @@ async function callGoogleVisionAsync(image) {
     body: JSON.stringify(body),
   })
   const result = await response.json()
-  console.log(result)
-  const detectedText = result.responses[0].fullTextAnnotation
+  // console.log(result.responses[0].fullTextAnnotation)
+  // console.log(result.responses[0].textAnnotations)
+  const detectedText = result.responses[0].textAnnotations
+
   return detectedText
     ? detectedText
     : { text: "This image doesn't contain any text!" }
 }
+
 export default callGoogleVisionAsync

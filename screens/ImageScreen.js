@@ -16,13 +16,6 @@ import callGoogleVisionAsync from "../helperFunctions"
 const ImageScreen = ({ navigation }) => {
   const windowWidth = useWindowDimensions().width
 
-  const analysePic = async () => {
-    console.log(navigation.getParam)
-    //run the callGoogleVisionAsync handler and pass in the image data.
-    // const responseData = await callGoogleVisionAsync(photo)
-    // setText(responseData.text)
-    // console.log(responseData.text)
-  }
   return (
     <View style={styles.container}>
       {/* <Image

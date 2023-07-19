@@ -33,6 +33,14 @@
         {
           "cameraPermission": "Allow Blue Plaque Scanner to access your camera."
         }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Blue Plaque Scanner to access your photos.",
+          "savePhotosPermission": "Allow Blue Plaque Scanner to save photos.",
+          "isAccessMediaLocationEnabled": "true"
+        }
       ]
     ]
   }

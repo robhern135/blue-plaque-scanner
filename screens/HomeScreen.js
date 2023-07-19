@@ -11,7 +11,9 @@ import { useEffect, useRef, useState } from "react"
 import { Camera } from "expo-camera"
 import * as MediaLibrary from "expo-media-library"
 
-// import callGoogleVisionAsync from "../helperFunctions.js"
+import * as Linking from "expo-linking"
+
+import callGoogleVisionAsync from "../helperFunctions.js"
 
 //components
 //google image to text
@@ -20,19 +22,21 @@ const HomeScreen = ({ navigation: { navigate } }) => {
   let cameraRef = useRef()
   const [hasCameraPermission, setHasCameraPermission] = useState()
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState()
-  const [photo, setPhoto] = useState()
+  const [image, setImage] = useState()
+  const [base64, setBase64] = useState()
   const [text, setText] = useState()
   const windowWidth = useWindowDimensions().width
 
   useEffect(() => {
-    ;(async () => {
-      const cameraPermission = await Camera.requestCameraPermissionsAsync()
-      const mediaLibraryPermission =
-        await MediaLibrary.requestPermissionsAsync()
-      setHasCameraPermission(cameraPermission.status === "granted")
-      setHasMediaLibraryPermission(mediaLibraryPermission.status === "granted")
-    })()
+    getPermissions()
   }, [])
+
+  const getPermissions = async () => {
+    const cameraPermission = await Camera.requestCameraPermissionsAsync()
+    const mediaLibraryPermission = await MediaLibrary.requestPermissionsAsync()
+    setHasCameraPermission(cameraPermission.status === "granted")
+    setHasMediaLibraryPermission(mediaLibraryPermission.status === "granted")
+  }
 
   let takePic = async () => {
     let options = {
@@ -40,16 +44,69 @@ const HomeScreen = ({ navigation: { navigate } }) => {
       base64: true,
       exif: false,
     }
+    console.log("taking photo")
 
     let newPhoto = await cameraRef.current.takePictureAsync(options)
-    setPhoto(newPhoto)
-    console.log(photo)
-    //then move to the image screen
-    navigate("ImageScreen", {
-      photo,
-    })
+    setImage(newPhoto)
+    setBase64(newPhoto.base64)
   }
 
+  const discardPic = () => {
+    console.log("discarding")
+    setImage()
+    setBase64()
+  }
+  const analysePic = async () => {
+    console.log()
+    //run the callGoogleVisionAsync handler and pass in the image data.
+    const responseData = await callGoogleVisionAsync(base64)
+
+    let sanitizedData = responseData.map(function (obj) {
+      return obj.description
+    })
+
+    let useData = sanitizedData.slice(1)
+    console.log(`useData: ${useData}`)
+    // console.log(typeof useData)
+
+    var searchStr = useData.join(" ").trim()
+    console.log(`searchStr: ${searchStr}`)
+
+    // setText(responseData.text.replace([">", "<", "?", "&"], " "))
+
+    let searchUrl = `https://en.wikipedia.org/wiki/Special:Search/${specifyText(
+      searchStr
+    )}`
+    Linking.openURL(searchUrl)
+  }
+
+  const specifyText = (searchStr) => {
+    searchStr = searchStr.replace(
+      [
+        ">",
+        "<",
+        "?",
+        "&",
+        "lived",
+        "and",
+        "the",
+        "council",
+        "died",
+        "here",
+        "greater",
+        "london",
+        "-",
+        "in",
+        "house",
+        "english",
+        "heritage",
+        "near",
+        "this",
+      ],
+      ""
+    )
+    return searchStr
+  }
   //no camera permissions
   if (hasCameraPermission === undefined) {
     return <Text>Requesting permissions...</Text>
@@ -63,13 +120,43 @@ const HomeScreen = ({ navigation: { navigate } }) => {
 
   return (
     <SafeAreaView>
-      <Camera
-        ratio={"1:1"}
-        style={[styles.camera, { width: windowWidth, height: windowWidth }]}
-        ref={cameraRef}
-      ></Camera>
+      <View>
+        {image && base64 ? (
+          <>
+            <Image
+              style={[
+                styles.preview,
+                {
+                  height: windowWidth,
+                  width: windowWidth,
+                  objectFit: "cover",
+                  overflow: "hidden",
+                  ratio: "1:1",
+                },
+              ]}
+              source={{
+                uri: `data:image/jpg;base64,${base64}`,
+              }}
+            />
+            {text && <Text>{text}</Text>}
+          </>
+        ) : (
+          <Camera
+            ratio={"1:1"}
+            style={[styles.camera, { width: windowWidth, height: windowWidth }]}
+            ref={cameraRef}
+          ></Camera>
+        )}
+      </View>
       <View style={styles.buttonContainer}>
-        <Button title="Take Pic" onPress={takePic} />
+        {base64 ? (
+          <>
+            <Button title="Discard Picture" onPress={discardPic} />
+            <Button title="Analyse Picture" onPress={analysePic} />
+          </>
+        ) : (
+          <Button title="Take Picture" onPress={takePic} />
+        )}
       </View>
     </SafeAreaView>
   )
@@ -98,10 +185,10 @@ const styles = StyleSheet.create({
   button: {
     marginHorizontal: 5,
   },
-  preview: {
-    alignSelf: "center",
-    flex: 1,
-  },
+  // preview: {
+  //   alignSelf: "center",
+  //   flex: 1,
+  // },
 })
 
 export default HomeScreen
